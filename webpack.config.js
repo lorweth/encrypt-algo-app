@@ -6,9 +6,18 @@ module.exports = {
     output: { path: path.join(__dirname, "build"), filename: "index.bundle.js" },
     mode: process.env.NODE_ENV || "development",
     resolve: {
-        extensions: [".tsx", ".ts", ".js"],
+        extensions: [".tsx", ".ts", ".js", ".json", ".wasm"],
     },
     devServer: { static: path.join(__dirname, "build") },
+    experiments: { asyncWebAssembly: true },
+    // experiments: {
+    //     asyncWebAssembly: true,
+    //     layers: true,
+    //     lazyCompilation: true,
+    //     outputModule: true,
+    //     syncWebAssembly: true,
+    //     topLevelAwait: true,
+    // },
     module: {
         rules: [
             {
