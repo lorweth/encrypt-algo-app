@@ -1,8 +1,5 @@
 import { configureStore } from '@reduxjs/toolkit';
 import appReducer from './reducers/appReducer';
-import cipherFormReducer from './reducers/cipherFormReducer';
-import outputPanelReducer from './reducers/outputPanelReducer';
-import terminalReducer from './reducers/terminalReducer';
 
 const store = configureStore({
   reducer: {

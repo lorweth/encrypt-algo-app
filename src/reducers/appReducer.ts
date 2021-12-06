@@ -17,6 +17,9 @@ const appSlice = createSlice({
     setLog: (state, action) => {
       state.log = action.payload;
     },
+    addLog: (state, action) => {
+      state.log += action.payload;
+    },
     setOutput: (state, action) => {
       state.output = action.payload;
     },
@@ -31,5 +34,5 @@ const appSlice = createSlice({
   },
 });
 
-export const { setLog, setOutput, setData, resetAll } = appSlice.actions;
+export const { setLog, addLog, setOutput, setData, resetAll } = appSlice.actions;
 export default appSlice.reducer;

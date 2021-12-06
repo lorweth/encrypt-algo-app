@@ -1,3 +1,5 @@
+import { addLog } from '../../reducers/appReducer';
+import { AppDispatch } from '../../store';
 import { convertDecToBin, indexOf, swap } from '../data-utils';
 
 /**
@@ -7,23 +9,32 @@ import { convertDecToBin, indexOf, swap } from '../data-utils';
  * @param k khóa mã hóa
  * @returns chuỗi kí tự đã được mã hóa
  */
-const encrypt = (table: string, plaintext: string, k: string) => {
+const encrypt = (table: string, plaintext: string, k: string, dispatch: AppDispatch) => {
   let s = Array(8).fill(0);
   let t = Array(8).fill(0);
+  dispatch(addLog('s: ' + s + '<br>'));
+  dispatch(addLog('t: ' + t + '<br>'));
   console.log('s: ' + s);
   console.log('t: ' + t);
 
   init(s, t, k);
+  dispatch(addLog('Init s, t complete: <br>'));
+  dispatch(addLog('s: ' + s + '<br>'));
+  dispatch(addLog('t: ' + t + '<br>'));
   console.log('s: ' + s);
   console.log('t: ' + t);
 
   const key = generateKey(s, plaintext.length);
+  dispatch(addLog('Key generated <br>'));
+  dispatch(addLog('Key: ' + key + '<br>'));
   console.log('key: ' + key);
 
   let cipher = [];
   for (let i = 0; i < key.length; i++) {
     cipher.push(key[i] ^ indexOf(table, plaintext.charAt(i)));
   }
+  dispatch(addLog('Cipher generated <br>'));
+  dispatch(addLog('Cipher: ' + cipher + '<br>'));
   console.log('result: ' + cipher);
 
   let result = '';
