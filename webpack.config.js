@@ -10,6 +10,7 @@ module.exports = {
     },
     devServer: { static: path.join(__dirname, "build") },
     experiments: { asyncWebAssembly: true },
+    devtool: 'source-map',
     // experiments: {
     //     asyncWebAssembly: true,
     //     layers: true,
@@ -37,6 +38,10 @@ module.exports = {
             {
                 test: /\.(jpg|jpeg|png|gif|mp3|svg)$/,
                 use: ["file-loader"],
+            },
+            { 
+                test: /\.js\.map$/, 
+                loader: 'source-map' 
             },
         ],
     },
