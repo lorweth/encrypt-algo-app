@@ -1,8 +1,7 @@
 import React from 'react';
-import { useAppSelector } from '../store';
-import './output-panel.css';
+import { useAppSelector } from '../../store';
 
-const OutputDisplay = () => {
+const OutputScene = () => {
   const output = useAppSelector(state => state.app.output);
   return (
     <div className="output-panel">
@@ -10,4 +9,4 @@ const OutputDisplay = () => {
     </div>
   );
 };
-export default OutputDisplay;
+export default OutputScene;

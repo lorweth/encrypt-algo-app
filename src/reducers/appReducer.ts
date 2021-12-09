@@ -1,24 +1,28 @@
-import { createSlice } from '@reduxjs/toolkit';
+import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import { CipherType } from '../models/cipher';
+
+const initialData = {
+  content: 'WOLFASLEEPAMIDSTTHETREE',
+  k: 9,
+  algorithm: 'caesar',
+  isDecrypt: false,
+} as CipherType;
 
 const initialState = {
-  data: {
-    plaintext: '',
-    k: '',
-  },
+  data: initialData,
   output: '',
-  log: '',
-  error: '',
+  log: [''],
 };
 
 const appSlice = createSlice({
   name: 'app',
   initialState: initialState,
   reducers: {
-    setLog: (state, action) => {
-      state.log = action.payload;
-    },
     addLog: (state, action) => {
-      state.log += action.payload;
+      state.log.push(action.payload);
+    },
+    clearLog: state => {
+      state.log = [''];
     },
     setOutput: (state, action) => {
       state.output = action.payload;
@@ -34,5 +38,5 @@ const appSlice = createSlice({
   },
 });
 
-export const { setLog, addLog, setOutput, setData, resetAll } = appSlice.actions;
+export const { addLog, clearLog, setOutput, setData, resetAll } = appSlice.actions;
 export default appSlice.reducer;

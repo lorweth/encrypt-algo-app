@@ -1,57 +1,50 @@
 import React, { useEffect } from 'react';
-import TerminalDisplay from './components/terminal-display';
-import { encrypt } from './functions/RC4_encrypt/RC4';
-import { setContent } from './reducers/terminalReducer';
-import { useAppDispatch, useAppSelector } from './hooks/hook';
-import CipherForm from './components/cipher-form';
-import OutputDisplay from './components/output-display';
-import { setLog, setOutput } from './reducers/appReducer';
-import './styles.css';
+import ConsoleScene from './components/ConsoleScene/console-scene';
 import Footer from './components/footer';
-
-const funlog =
-  'Hacking Nasa ............... 0%<br>Hacking Nasa ............... 30%<br>Hacking Nasa ............... 50%<br>Hacking Nasa ............... 60%<br>Hacking Nasa ............... 95%<br>Hacking Nasa ............... 100%';
-
-const funoutput = 'Hacked Nasa';
-
-const table = 'ABCDEFG';
+import InputForm from './components/InputForm/input-form';
+import OutputScene from './components/OutputScene/output-scene';
+import { Caesar } from './functions/Caesar/caesar';
+import { Logger } from './functions/logger';
+import { setOutput } from './reducers/appReducer';
+import { useAppDispatch, useAppSelector } from './store';
+import './styles.css';
 
 const App: React.FC = props => {
   const dispatch = useAppDispatch();
   const data = useAppSelector(state => state.app.data);
+  const logger = new Logger(dispatch);
 
   useEffect(() => {
-    dispatch(setLog(funlog));
-    dispatch(setOutput(funoutput));
-  }, []);
+    console.log(JSON.stringify(data));
 
-  useEffect(() => {
-    if (data.plaintext != '' && data.k != '') {
-      const { plaintext, k } = data;
-      dispatch(setLog(''));
-      const ciphertext = encrypt(table, plaintext, k, dispatch);
-
-      dispatch(setOutput(ciphertext));
+    switch (data.algorithm) {
+      case 'caesar':
+        if (!data.isDecrypt) {
+          logger.add('Caesar encrypt started');
+          const caesar = new Caesar(data.content, +data.k, logger);
+          const result = caesar.encrypt();
+          logger.add('Caesar encrypt finished with result: ' + result);
+          dispatch(setOutput(result));
+        } else {
+          logger.add('Caesar decrypt started');
+          const caesar = new Caesar(data.content, +data.k, logger);
+          const result = caesar.decrypt();
+          logger.add('Caesar decrypt finished with result: ' + result);
+          dispatch(setOutput(result));
+        }
     }
-  }, [data.plaintext, data.k]);
+  }, [data.algorithm, data.content, data.k, data.isDecrypt]);
 
   return (
     <>
-      <h1 className="title">Ứng dụng Mã hóa/Giải mã bằng các thuật toán cô dạy</h1>
       <div className="container" id="container">
         <div className="form-container">
-          <CipherForm />
+          <InputForm />
+          <OutputScene />
+          <ConsoleScene />
         </div>
-        <div className="form-container overlay-container">
-          <div className="overlay">
-            <div className="overlay-panel">
-              <OutputDisplay />
-              <TerminalDisplay />
-            </div>
-          </div>
-        </div>
-        <Footer />
       </div>
+      <Footer />
     </>
   );
 };
