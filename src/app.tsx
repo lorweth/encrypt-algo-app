@@ -11,10 +11,13 @@ import { setOutput } from './reducers/appReducer';
 import { useAppDispatch, useAppSelector } from './store';
 import './styles.css';
 
+import { encrypt as rc4Encrypt } from './functions/RC4_encrypt/RC4';
+
 const App: React.FC = props => {
   const dispatch = useAppDispatch();
   const data = useAppSelector(state => state.app.data);
   const logger = new Logger(dispatch);
+  const table = 'ABCDEFGH';
 
   useEffect(() => {
     console.log(JSON.stringify(data));
@@ -62,6 +65,14 @@ const App: React.FC = props => {
           const poly = new PolyAlphabetic(data.content, data.k.toString(), logger);
           const result = poly.decrypt();
           logger.add('Poly-Alphabetic decrypt finished with result: ' + result);
+          dispatch(setOutput(result));
+        }
+        break;
+      case 'tinyrc4':
+        if (!data.isDecrypt) {
+          logger.add('RC4 encrypt started');
+          const result = rc4Encrypt(table, data.content, data.k.toString(), dispatch);
+          logger.add('RC4 encrypt finished with result: ' + result);
           dispatch(setOutput(result));
         }
         break;

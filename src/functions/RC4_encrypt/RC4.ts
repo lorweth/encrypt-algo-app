@@ -9,7 +9,7 @@ import { convertDecToBin, indexOf, swap } from '../data-utils';
  * @param k khóa mã hóa
  * @returns chuỗi kí tự đã được mã hóa
  */
-const encrypt = (table: string, plaintext: string, k: string, dispatch: AppDispatch) => {
+const encrypt = (table: string, plaintext: string, k: string, dispatch: AppDispatch): string => {
   let s = Array(8).fill(0);
   let t = Array(8).fill(0);
   dispatch(addLog('s: ' + s + '<br>'));
