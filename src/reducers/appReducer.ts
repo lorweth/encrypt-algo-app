@@ -19,7 +19,7 @@ const appSlice = createSlice({
   initialState: initialState,
   reducers: {
     addLog: (state, action) => {
-      state.log = initialState.log;
+      // state.log = initialState.log;
       state.log.push(action.payload);
     },
     clearLog: state => {

@@ -6,6 +6,7 @@ import { Caesar } from './functions/Caesar/caesar';
 import Logger from './functions/logger';
 import { MonoAlphabetic } from './functions/MonoAlphabetic/mono-alphabetic';
 import PolyAlphabetic from './functions/PolyAlphabetic/poly-alphabetic';
+import TinyDES from './functions/TinyDES/tiny-des';
 import { setOutput } from './reducers/appReducer';
 import { useAppDispatch, useAppSelector } from './store';
 import './styles.css';
@@ -65,19 +66,11 @@ const App: React.FC = props => {
         }
         break;
       case 'tinydes':
-        if (!data.isDecrypt) {
-          logger.add('TinyDES encrypt started');
-          const des = new PolyAlphabetic(data.content, data.k.toString(), logger);
-          const result = des.encrypt();
-          logger.add('TinyDES encrypt finished with result: ' + result);
-          dispatch(setOutput(result));
-        } else {
-          logger.add('TinyDES decrypt started');
-          const des = new PolyAlphabetic(data.content, data.k.toString(), logger);
-          const result = des.decrypt();
-          logger.add('TinyDES decrypt finished with result: ' + result);
-          dispatch(setOutput(result));
-        }
+        logger.add('TinyDES encrypt started');
+        const des = new TinyDES(logger);
+        const result = des.encrypt(data.content, data.k.toString());
+        logger.add('TinyDES encrypt finished with result: ' + result);
+        dispatch(setOutput(result));
     }
   }, [data.algorithm, data.content, data.k, data.isDecrypt]);
 
