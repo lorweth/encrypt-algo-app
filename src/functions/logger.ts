@@ -1,7 +1,7 @@
 import { addLog, clearLog } from '../reducers/appReducer';
 import { AppDispatch } from '../store';
 
-export class Logger {
+export default class Logger {
   dispatch: AppDispatch;
 
   constructor(dispatch: AppDispatch) {

@@ -1,10 +1,11 @@
 import React, { useEffect } from 'react';
 import ConsoleScene from './components/ConsoleScene/console-scene';
-import Footer from './components/footer';
 import InputForm from './components/InputForm/input-form';
 import OutputScene from './components/OutputScene/output-scene';
 import { Caesar } from './functions/Caesar/caesar';
-import { Logger } from './functions/logger';
+import Logger from './functions/logger';
+import { MonoAlphabetic } from './functions/MonoAlphabetic/mono-alphabetic';
+import PolyAlphabetic from './functions/PolyAlphabetic/poly-alphabetic';
 import { setOutput } from './reducers/appReducer';
 import { useAppDispatch, useAppSelector } from './store';
 import './styles.css';
@@ -32,6 +33,51 @@ const App: React.FC = props => {
           logger.add('Caesar decrypt finished with result: ' + result);
           dispatch(setOutput(result));
         }
+        break;
+      case 'monoalphabetic':
+        if (!data.isDecrypt) {
+          logger.add('Monoalphabetic encrypt started');
+          const mono = new MonoAlphabetic(data.content, data.k.toString(), logger);
+          const result = mono.encrypt();
+          logger.add('Monoalphabetic encrypt finished with result: ' + result);
+          dispatch(setOutput(result));
+        } else {
+          logger.add('Monoalphabetic decrypt started');
+          const mono = new MonoAlphabetic(data.content, data.k.toString(), logger);
+          const result = mono.decrypt();
+          logger.add('Monoalphabetic decrypt finished with result: ' + result);
+          dispatch(setOutput(result));
+        }
+        break;
+      case 'polyalphabetic':
+        if (!data.isDecrypt) {
+          logger.add('Poly-Alphabetic encrypt started');
+          const poly = new PolyAlphabetic(data.content, data.k.toString(), logger);
+          const result = poly.encrypt();
+          logger.add('Poly-Alphabetic encrypt finished with result: ' + result);
+          dispatch(setOutput(result));
+        } else {
+          logger.add('Poly-Alphabetic decrypt started');
+          const poly = new PolyAlphabetic(data.content, data.k.toString(), logger);
+          const result = poly.decrypt();
+          logger.add('Poly-Alphabetic decrypt finished with result: ' + result);
+          dispatch(setOutput(result));
+        }
+        break;
+      case 'tinydes':
+        if (!data.isDecrypt) {
+          logger.add('TinyDES encrypt started');
+          const des = new PolyAlphabetic(data.content, data.k.toString(), logger);
+          const result = des.encrypt();
+          logger.add('TinyDES encrypt finished with result: ' + result);
+          dispatch(setOutput(result));
+        } else {
+          logger.add('TinyDES decrypt started');
+          const des = new PolyAlphabetic(data.content, data.k.toString(), logger);
+          const result = des.decrypt();
+          logger.add('TinyDES decrypt finished with result: ' + result);
+          dispatch(setOutput(result));
+        }
     }
   }, [data.algorithm, data.content, data.k, data.isDecrypt]);
 
@@ -44,7 +90,6 @@ const App: React.FC = props => {
           <ConsoleScene />
         </div>
       </div>
-      <Footer />
     </>
   );
 };
