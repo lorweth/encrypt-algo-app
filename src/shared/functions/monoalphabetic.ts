@@ -1,6 +1,6 @@
 import { Cryptor } from '../models/cryptor';
 import { Logger } from '../models/log';
-import { CryptorName } from './cryptor-list';
+import { CryptorName } from './cryptor-factory';
 
 export class MonoAlphabetic implements Cryptor {
   private alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
@@ -14,9 +14,11 @@ export class MonoAlphabetic implements Cryptor {
   encrypt(data: string, key: string | number): string {
     let cipher = '';
     for (let i = 0; i < data.length; i++) {
-      const char = data.charAt(i); // kí tự cần mã hóa
-      const index = this.alphabet.indexOf(char); // vị trí mới của kí tự trong chuổi key
+      // the character to be encrypted
+      const char = data.charAt(i);
+      const index = this.alphabet.indexOf(char);
       if (index >= 0) {
+        // the char at the index of the key
         cipher += key.toString().charAt(index);
       } else {
         cipher += char;

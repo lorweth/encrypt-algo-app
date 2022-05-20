@@ -1,6 +1,6 @@
 import { Cryptor } from '../models/cryptor';
 import { Logger } from '../models/log';
-import { CryptorName } from './cryptor-list';
+import { CryptorName } from './cryptor-factory';
 
 export class Caesar implements Cryptor {
   constructor(private logger: Logger) {}

@@ -1,12 +1,20 @@
 import { Cryptor } from '../models/cryptor';
 import { Logger } from '../models/log';
 import { Caesar } from './caesar';
-import { CryptorName } from './cryptor-list';
 import { MonoAlphabetic } from './monoalphabetic';
 
-export class CryptorFactory {
+export const CryptorList = {
+  caesar: 'Caesar',
+  monoalphabetic: 'Monoalphabetic',
+  // polyalphabetic: 'Polyalphabetic',
+  // rc4: 'RC4',
+  // tinydes: 'TinyDES',
+};
 
-  constructor(private logger: Logger) { }
+export type CryptorName = keyof typeof CryptorList;
+
+export class CryptorFactory {
+  constructor(private logger: Logger) {}
 
   getCryptor(cryptorName: CryptorName): Cryptor {
     switch (cryptorName) {
@@ -14,6 +22,7 @@ export class CryptorFactory {
         return new Caesar(this.logger);
       case 'monoalphabetic':
         return new MonoAlphabetic(this.logger);
+      // add more case here
       default:
         throw new Error('Cryptor not found');
     }

@@ -16,8 +16,7 @@ import React, { useEffect } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { useAppDispatch, useAppSelector } from './configs/store';
-import { CryptorFactory } from './shared/functions/cryptor-factory';
-import { CryptorList, CryptorName } from './shared/functions/cryptor-list';
+import { CryptorFactory, CryptorList, CryptorName } from './shared/functions/cryptor-factory';
 import Main from './shared/layout/main';
 import { Cryptor } from './shared/models/cryptor';
 import { Log, Logger } from './shared/models/log';
@@ -91,13 +90,28 @@ const App = () => {
 
   return (
     <Main>
-      <Box as="div" p={5} mb={3} borderColor="blue.200" borderWidth={2} borderRadius="lg">
+      <Box
+        as="div"
+        sx={{
+          borderWidth: 2,
+          borderColor: 'blue.200',
+          borderRadius: 'lg',
+          padding: 5,
+          margin: 3,
+        }}
+      >
         <Heading as="h5" size="lg" mb={2}>
           Encrypt/Decrypt with simple Algorithms
         </Heading>
         <Divider />
-        <Box as="div" p={2} display="flex" flexDirection="row">
-          <Box as="form" onSubmit={handleSubmit(onSubmit)} w="400px">
+        <Box
+          as="div"
+          p={2}
+          display="flex"
+          flexDirection={{ base: 'column', lg: 'row' }}
+          justifyContent="center"
+        >
+          <Box as="form" onSubmit={handleSubmit(onSubmit)} flex={1} minWidth="xs">
             <Controller
               name="cryptor"
               rules={{ required: true }}
@@ -155,14 +169,19 @@ const App = () => {
               )}
             />
 
-            <Box as="div" display="flex" justifyContent="flex-start">
-              <Button type="submit" colorScheme="teal" variant="outline" mt={2}>
-                Submit
-              </Button>
-            </Box>
+            <Button type="submit" colorScheme="teal" minWidth="xs" variant="outline" m={1}>
+              Submit
+            </Button>
           </Box>
 
-          <Box as="div" ml={6} p={2}>
+          <Box
+            as="div"
+            ml={{ base: 'none', lg: 6 }}
+            mt={{ base: 6, lg: 'none' }}
+            flex={1}
+            minWidth="xs"
+            p={2}
+          >
             <Box
               as="p"
               p={2}
@@ -171,7 +190,6 @@ const App = () => {
               fontSize="md"
               color="white"
               bgColor="black"
-              w={500}
               borderRadius="lg"
             >
               {result}
@@ -186,7 +204,6 @@ const App = () => {
               fontSize="md"
               color="white"
               bgColor="black"
-              width={500}
               height={400}
               id="log-container"
               borderRadius="lg"

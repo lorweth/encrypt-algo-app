@@ -1,4 +1,4 @@
-import { CryptorName } from '../functions/cryptor-list';
+import { CryptorName } from '../functions/cryptor-factory';
 
 type KeyType = string | number;
 
