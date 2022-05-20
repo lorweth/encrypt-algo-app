@@ -1,101 +1,215 @@
+import {
+  Box,
+  Button,
+  Divider,
+  FormControl,
+  FormLabel,
+  Heading,
+  Input,
+  Select,
+  Text,
+  Textarea,
+  useToast,
+} from '@chakra-ui/react';
+import { debug } from 'console';
 import React, { useEffect } from 'react';
-import ConsoleScene from './components/ConsoleScene/console-scene';
-import InputForm from './components/InputForm/input-form';
-import OutputScene from './components/OutputScene/output-scene';
-import { Caesar } from './functions/Caesar/caesar';
-import Logger from './functions/logger';
-import { MonoAlphabetic } from './functions/MonoAlphabetic/mono-alphabetic';
-import PolyAlphabetic from './functions/PolyAlphabetic/poly-alphabetic';
-import TinyDES from './functions/TinyDES/tiny-des';
-import { setOutput } from './reducers/appReducer';
-import { useAppDispatch, useAppSelector } from './store';
-import './styles.css';
+import { Controller, useForm } from 'react-hook-form';
+import InfiniteScroll from 'react-infinite-scroll-component';
+import { useAppDispatch, useAppSelector } from './configs/store';
+import { CryptorFactory } from './shared/functions/cryptor-factory';
+import { CryptorList, CryptorName } from './shared/functions/cryptor-list';
+import Main from './shared/layout/main';
+import { Cryptor } from './shared/models/cryptor';
+import { Log, Logger } from './shared/models/log';
+import { addLog, reset } from './shared/reducers/logger.reducer';
 
-import { encrypt as rc4Encrypt } from './functions/RC4_encrypt/RC4';
-
-const App: React.FC = props => {
+const App = () => {
+  const toast = useToast();
   const dispatch = useAppDispatch();
-  const data = useAppSelector(state => state.app.data);
-  const logger = new Logger(dispatch);
-  const table = 'ABCDEFGH';
+  const { logs, loading } = useAppSelector(state => state.logger);
+
+  const debugLog: Logger = {
+    log(message: Log) {
+      dispatch(addLog(message));
+    },
+  };
+
+  const cryptorFactory = new CryptorFactory(debugLog);
+
+  const [cryptor, setCryptor] = React.useState<Cryptor>(cryptorFactory.getCryptor('caesar'));
+
+  const [result, setResult] = React.useState<string>('pending...');
+
+  const { handleSubmit, watch, control } = useForm<{
+    cryptor: CryptorName;
+    type: 'de' | 'en';
+    data: string;
+    key: string | number;
+  }>({
+    defaultValues: {
+      cryptor: cryptor.getName(),
+      type: 'en',
+      data: 'Toss a coin to your developer!',
+      key: 5,
+    },
+  });
+
+  // Update cryptor when cryptor changes
+  const watchCryptor = watch('cryptor');
 
   useEffect(() => {
-    console.log(JSON.stringify(data));
+    // Update cryptor when select other cryptor name in form
+    setCryptor(cryptorFactory.getCryptor(watchCryptor));
+    toast({
+      title: 'Cryptor changed',
+      description: `Cryptor changed to ${watchCryptor}`,
+      position: 'top-right',
+      status: 'success',
+      duration: 3000,
+      isClosable: true,
+    });
+    dispatch(reset());
+    setResult('pending...');
+  }, [watchCryptor]);
 
-    switch (data.algorithm) {
-      case 'caesar':
-        if (!data.isDecrypt) {
-          logger.add('Caesar encrypt started');
-          const caesar = new Caesar(data.content, +data.k, logger);
-          const result = caesar.encrypt();
-          logger.add('Caesar encrypt finished with result: ' + result);
-          dispatch(setOutput(result));
-        } else {
-          logger.add('Caesar decrypt started');
-          const caesar = new Caesar(data.content, +data.k, logger);
-          const result = caesar.decrypt();
-          logger.add('Caesar decrypt finished with result: ' + result);
-          dispatch(setOutput(result));
-        }
-        break;
-      case 'monoalphabetic':
-        if (!data.isDecrypt) {
-          logger.add('Monoalphabetic encrypt started');
-          const mono = new MonoAlphabetic(data.content, data.k.toString(), logger);
-          const result = mono.encrypt();
-          logger.add('Monoalphabetic encrypt finished with result: ' + result);
-          dispatch(setOutput(result));
-        } else {
-          logger.add('Monoalphabetic decrypt started');
-          const mono = new MonoAlphabetic(data.content, data.k.toString(), logger);
-          const result = mono.decrypt();
-          logger.add('Monoalphabetic decrypt finished with result: ' + result);
-          dispatch(setOutput(result));
-        }
-        break;
-      case 'polyalphabetic':
-        if (!data.isDecrypt) {
-          logger.add('Poly-Alphabetic encrypt started');
-          const poly = new PolyAlphabetic(data.content, data.k.toString(), logger);
-          const result = poly.encrypt();
-          logger.add('Poly-Alphabetic encrypt finished with result: ' + result);
-          dispatch(setOutput(result));
-        } else {
-          logger.add('Poly-Alphabetic decrypt started');
-          const poly = new PolyAlphabetic(data.content, data.k.toString(), logger);
-          const result = poly.decrypt();
-          logger.add('Poly-Alphabetic decrypt finished with result: ' + result);
-          dispatch(setOutput(result));
-        }
-        break;
-      case 'tinyrc4':
-        if (!data.isDecrypt) {
-          logger.add('RC4 encrypt started');
-          const result = rc4Encrypt(table, data.content, data.k.toString(), dispatch);
-          logger.add('RC4 encrypt finished with result: ' + result);
-          dispatch(setOutput(result));
-        }
-        break;
-      case 'tinydes':
-        logger.add('TinyDES encrypt started');
-        const des = new TinyDES(logger);
-        const result = des.encrypt(data.content, data.k.toString());
-        logger.add('TinyDES encrypt finished with result: ' + result);
-        dispatch(setOutput(result));
+  const onSubmit = values => {
+    if (values.type === 'de') {
+      setResult(cryptor.decrypt(values.data, values.key));
+    } else if (values.type === 'en') {
+      setResult(cryptor.encrypt(values.data, values.key));
+    } else {
+      toast({
+        title: 'Error',
+        description: 'Type is not defined',
+        position: 'top-right',
+        status: 'error',
+        duration: 3000,
+        isClosable: true,
+      });
     }
-  }, [data.algorithm, data.content, data.k, data.isDecrypt]);
+  };
 
   return (
-    <>
-      <div className="container" id="container">
-        <div className="form-container">
-          <InputForm />
-          <OutputScene />
-          <ConsoleScene />
-        </div>
-      </div>
-    </>
+    <Main>
+      <Box as="div" p={5} mb={3} borderColor="blue.200" borderWidth={2} borderRadius="lg">
+        <Heading as="h5" size="lg" mb={2}>
+          Encrypt/Decrypt with simple Algorithms
+        </Heading>
+        <Divider />
+        <Box as="div" p={2} display="flex" flexDirection="row">
+          <Box as="form" onSubmit={handleSubmit(onSubmit)} w="400px">
+            <Controller
+              name="cryptor"
+              rules={{ required: true }}
+              control={control}
+              render={({ field }) => (
+                <FormControl margin={1}>
+                  <FormLabel htmlFor="cryptor-input">Algorithms</FormLabel>
+                  <Select id="cryptor-input" w="100%" {...field}>
+                    {Object.keys(CryptorList).map(k => (
+                      <option key={k} value={k}>
+                        {CryptorList[k]}
+                      </option>
+                    ))}
+                  </Select>
+                </FormControl>
+              )}
+            />
+
+            <Controller
+              name="type"
+              rules={{ required: true }}
+              control={control}
+              render={({ field }) => (
+                <FormControl margin={1}>
+                  <FormLabel htmlFor="type-input">Type</FormLabel>
+                  <Select id="type-input" w="100%" {...field}>
+                    <option value="en">Encrypt</option>
+                    <option value="de">Decrypt</option>
+                  </Select>
+                </FormControl>
+              )}
+            />
+
+            <Controller
+              name="data"
+              rules={{ required: true }}
+              control={control}
+              render={({ field }) => (
+                <FormControl margin={1}>
+                  <FormLabel htmlFor="data-input">Data</FormLabel>
+                  <Textarea id="data-input" w="100%" {...field} />
+                </FormControl>
+              )}
+            />
+
+            <Controller
+              name="key"
+              rules={{ required: true }}
+              control={control}
+              render={({ field }) => (
+                <FormControl margin={1}>
+                  <FormLabel htmlFor="key-input">Key</FormLabel>
+                  <Input type="text" id="key-input" w="100%" {...field} />
+                </FormControl>
+              )}
+            />
+
+            <Box as="div" display="flex" justifyContent="flex-start">
+              <Button type="submit" colorScheme="teal" variant="outline" mt={2}>
+                Submit
+              </Button>
+            </Box>
+          </Box>
+
+          <Box as="div" ml={6} p={2}>
+            <Box
+              as="p"
+              p={2}
+              mb={2}
+              fontFamily="monospace"
+              fontSize="md"
+              color="white"
+              bgColor="black"
+              w={500}
+              borderRadius="lg"
+            >
+              {result}
+            </Box>
+
+            <Box
+              as="div"
+              p={2}
+              display="flex"
+              flexDirection="column"
+              fontFamily="monospace"
+              fontSize="md"
+              color="white"
+              bgColor="black"
+              width={500}
+              height={400}
+              id="log-container"
+              borderRadius="lg"
+            >
+              <InfiniteScroll
+                dataLength={logs.length}
+                style={{ width: 'inhenrit', height: 380 }}
+                next={() => {}}
+                loader={<p>Loading...</p>}
+                hasMore={false}
+                scrollableTarget="log-container"
+              >
+                {logs.map((log, index) => (
+                  <Text key={index}>
+                    {log.type.toUpperCase()}: {log.message}
+                  </Text>
+                ))}
+              </InfiniteScroll>
+            </Box>
+          </Box>
+        </Box>
+      </Box>
+    </Main>
   );
 };
-
 export default App;
